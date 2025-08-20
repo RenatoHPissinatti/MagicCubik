@@ -10,30 +10,30 @@ using namespace std;
 
 class magicCubik2x2x2 {
     private:
-        char up[2][2];
-        char down[2][2];
-        char left[2][2];
-        char right[2][2];
-        char front[2][2];
-        char back[2][2];
+        string up[2][2];
+        string down[2][2];
+        string left[2][2];
+        string right[2][2];
+        string front[2][2];
+        string back[2][2];
     
     public:
         // Inicializar o cubo:
         magicCubik2x2x2() {
             for (int i = 0; i < 2; ++i) {
                 for (int j = 0; j < 2; ++j) {
-                    up[i][j] = 'W';
-                    down[i][j] = 'Y';
-                    left[i][j] = 'O';
-                    right[i][j] = 'R';
-                    front[i][j] = 'G';
-                    back[i][j] = 'B';
+                    up[i][j] = "W" + to_string(i) + to_string(j);
+                    down[i][j] = "Y" + to_string(i) + to_string(j);
+                    left[i][j] = "O" + to_string(i) + to_string(j);
+                    right[i][j] = "R" + to_string(i) + to_string(j);
+                    front[i][j] = "G" + to_string(i) + to_string(j);
+                    back[i][j] = "B" + to_string(i) + to_string(j);
                 }
             }
         }
     // Manipulação do cubo
-    void moveU () {
-    char temp[2][2];
+    void moveU () { //CORRETO
+    string temp[2][2];
     temp[0][0] = front[0][0];
     temp[0][1] = front[0][1];
     temp[1][0] = front[1][0];
@@ -51,7 +51,7 @@ class magicCubik2x2x2 {
     left[0][0] = temp[0][0];
     left[0][1] = temp[0][1];
 
-    char tempUp = up[0][0];
+    string tempUp = up[0][0];
     up[0][0] = up[1][0];
     up[1][0] = up[1][1];
     up[1][1] = up[0][1];
@@ -59,33 +59,33 @@ class magicCubik2x2x2 {
 
     }
     void moveD () {
-        char temp[2][2];
+        string temp[2][2];
         temp[0][0] = front[0][0];
         temp[0][1] = front[0][1];
         temp[1][0] = front[1][0];
         temp[1][1] = front[1][1];
 
-        front[1][0] = right[0][0];
-        front[1][1] = right[0][1];
+        front[1][0] = right[1][0];
+        front[1][1] = right[1][1];
 
-        right[1][0] = back[0][0];
-        right[1][1] = back[0][1];
+        right[1][0] = back[1][0];
+        right[1][1] = back[1][1];
 
-        back[1][0] = left[0][0];
-        back[1][1] = left[0][1];
+        back[1][0] = left[1][0];
+        back[1][1] = left[1][1];
 
-        left[1][0] = temp[0][0];
-        left[1][1] = temp[0][1];
+        left[1][0] = temp[1][0];
+        left[1][1] = temp[1][1];
 
-        char tempDown = down[0][0];
-        down[0][0] = down[0][1];
-        down[0][1] = down[1][1];
-        down[1][1] = down[1][0];
-        down[1][0] = tempDown;
+        string tempDown = down[0][0];
+        down[0][0] = down[1][0];
+        down[1][0] = down[1][1];
+        down[1][1] = down[0][1];
+        down[0][1] = tempDown;
     }
 
-    void moveR () {
-        char temp[2][2];
+    void moveR () { //CORRETO
+        string temp[2][2];
         temp[0][0] = front[0][0];
         temp[0][1] = front[0][1];
         temp[1][0] = front[1][0];
@@ -103,7 +103,7 @@ class magicCubik2x2x2 {
         up[1][1] = temp[1][1];
         up[0][1] = temp[0][1];
 
-        char tempRight = right[0][0];
+        string tempRight = right[0][0];
 
         right[0][0] = right[1][0];
         right[1][0] = right[1][1];
@@ -111,8 +111,8 @@ class magicCubik2x2x2 {
         right[0][1] = tempRight;
     }
 
-    void moveL () {
-        char temp[2][2];
+    void moveL () { //CORRETO
+        string temp[2][2];
         temp[0][0] = front[0][0];
         temp[0][1] = front[0][1];
         temp[1][0] = front[1][0];
@@ -130,15 +130,15 @@ class magicCubik2x2x2 {
         up[0][0] = temp[0][0];
         up[1][0] = temp[1][0];
 
-        char tempLeft = left[0][0];
+        string tempLeft = left[0][0];
         left[0][0] = left[0][1];
         left[0][1] = left[1][1];
         left[1][1] = left[1][0];
         left[1][0] = tempLeft;
     }
 
-    void moveF () {
-        char temp[2][2];
+    void moveF () { //CORRETO
+        string temp[2][2];
         temp[0][0] = up[0][0];
         temp[0][1] = up[0][1];
         temp[1][0] = up[1][0];
@@ -156,15 +156,15 @@ class magicCubik2x2x2 {
         right[0][0] = temp[1][0];
         right[1][0] = temp[1][1];
 
-        char tempFront = front[0][0];
+        string tempFront = front[0][0];
         front[0][0] = front[1][0];
         front[1][0] = front[1][1];
         front[1][1] = front[0][1];
         front[0][1] = tempFront;
     }
 
-    void moveB () {
-        char temp[2][2];
+    void moveB () {//CORRETO
+        string temp[2][2];
         temp[0][0] = up[0][0];
         temp[0][1] = up[0][1];
         temp[1][0] = up[1][0];
@@ -182,7 +182,7 @@ class magicCubik2x2x2 {
         right[0][1] = temp[0][0];
         right[1][1] = temp[0][1];
 
-        char tempBack = back[0][0];
+        string tempBack = back[0][0]; //Errado
         back[0][0] = back[0][1];
         back[0][1] = back[1][1];
         back[1][1] = back[1][0];
