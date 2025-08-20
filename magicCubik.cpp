@@ -196,12 +196,12 @@ class magicCubik2x2x2 {
 
     void printCubik() {
         cout << "==============================" << endl;
-        cout << "\t" << "    "; cout << up[0][0] << " " << up[0][1] << endl;
-        cout << "\t" << "    "; cout << up[1][0] << " " << up[1][1] << endl;
+        cout << "\t" << "        "; cout << up[0][0] << " " << up[0][1] << endl;
+        cout << "\t" << "        "; cout << up[1][0] << " " << up[1][1] << endl;
         cout << "       " << left[0][0]<< " " << left[0][1] << "  " << front[0][0]<<  " " << front[0][1] << "  " << right[0][0] << " " << right[0][1] << "  "; cout << back[0][0] << " " << back[0][1] << endl;
         cout << "       " << left[1][0]<< " " << left[1][1] << "  " << front[1][0]<<  " " << front[1][1] << "  " << right[1][0] << " " << right[1][1] << "  "; cout << back[0][0] << " " << back[0][1] << endl;
-        cout << "\t" << "    "; cout << down[0][0] << " " << down[0][1] << endl;
-        cout << "\t" << "    "; cout << down[1][0] << " " << down[1][1] << endl;
+        cout << "\t" << "        "; cout << down[0][0] << " " << down[0][1] << endl;
+        cout << "\t" << "        "; cout << down[1][0] << " " << down[1][1] << endl;
         cout << endl;
         cout<< "\t" << "MOVIMENTOS: " << endl;
         cout<< "     " << "- U" << "   ";
@@ -243,7 +243,7 @@ int main() {
             cube.moveB();
             cube.printCubik();
         } else {
-            cout << "Instrução não reconhecida, tente novamente" << endl;
+            cout << "Instrução inválida, tente novamente" << endl;
         }
     }
 
