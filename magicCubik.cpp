@@ -323,3 +323,6 @@ int main() {
     }
     return 0;
 }
+
+
+//teste de armazenamento de movimentos e estados
