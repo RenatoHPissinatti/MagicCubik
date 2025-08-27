@@ -282,7 +282,7 @@ int main() {
 
     char m;
     while (true) {
-        std::cout << "Digite um movimento (U, D, L, R, F, B)ou 'Q' para sair: ";
+        std::cout << "Digite um movimento (U, D, L, R, F, B) ou 'Q' para sair: ";
         std::cin >> m;
 
         if(m =='U' || m =='D' || m == 'L' || m == 'R' || m == 'F' || m == 'B') {
@@ -309,8 +309,8 @@ int main() {
                     break;
             }
 
-            cube.getMoveHistory.push(m);
-            cube.getStateHistory.push(cube.getCurrentState());
+            cube.getMoveHistory().push(m);
+            cube.getStateHistory().push(cube.getCurrentState());
 
             cube.printCubik();
         } else if (m == 'Q' || m == 'q') {
@@ -324,5 +324,3 @@ int main() {
     return 0;
 }
 
-
-//teste de armazenamento de movimentos e estados
