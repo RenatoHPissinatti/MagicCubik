@@ -96,10 +96,10 @@ public:
 
         front[0][1] = down[0][1];
         front[1][1] = down[1][1];
-        down[0][1]  = back[0][1];
+        down[0][1]  = back[1][0];
         down[1][1]  = back[0][0];
         back[0][0]  = up[1][1];
-        back[0][1]  = up[0][1];
+        back[1][0]  = up[0][1];
         up[1][1]    = temp[1][1];
         up[0][1]    = temp[0][1];
 
