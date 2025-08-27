@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#include <queue>
+#include <deque>
 #include <string>
 #include <iostream>
 
@@ -23,8 +23,8 @@ private:
     string front[2][2];
     string back[2][2];
 
-    std::queue<char> moveHistory; // Fila que armazena os movimentos
-    std::queue<CubikState> stateHistory; // Fila que armazena os estados
+    std::deque<char> moveHistory; // Fila que armazena os movimentos
+    std::deque<CubikState> stateHistory; // Fila que armazena os estados
 
 
     // Retorna o "inner" colorido (2 espaços com background ANSI)
@@ -74,15 +74,15 @@ public:
 
     void addMove(char m)
     {
-        moveHistory.push(m);
+        moveHistory.push_back(m);
     }
 
-    std::queue<char> & getMoveHistory()
+    std::deque<char> & getMoveHistory()
     { 
         return moveHistory; 
     }
 
-    std::queue<CubikState> & getStateHistory()
+    std::deque<CubikState> & getStateHistory()
     { 
         return stateHistory; 
     }
@@ -226,6 +226,26 @@ public:
 
     // Impressão com bordas compartilhadas (junções) entre células
     void printCubik() {
+
+        std::cout << std::endl;
+
+        cout << "==========================================" << endl;
+
+        std::cout << "Historico de Movimentos:" << std::endl;
+    // Cria uma cópia da fila para não alterar a original
+        std::deque<char> tempMoveHistory = moveHistory;
+    
+    if (tempMoveHistory.empty()) {
+        std::cout << "Nenhum movimento registrado." << std::endl;
+        return;
+    }
+
+    while (!tempMoveHistory.empty()) {
+        std::cout << tempMoveHistory.front() << " ";
+        tempMoveHistory.pop_front();
+    }
+    std::cout << std::endl;
+
         cout << "==========================================" << endl;
 
         // ---- UP (centrado com tab)
@@ -277,8 +297,8 @@ int main() {
     std::cout << "\n\t MAGIC CUBIK " << std::endl;
     cube.printCubik();
 
-    cube.getMoveHistory().push('I');
-    cube.getStateHistory().push(cube.getCurrentState());
+    cube.getMoveHistory().push_front('I');
+    cube.getStateHistory().push_front(cube.getCurrentState());
 
     char m;
     while (true) {
@@ -309,8 +329,8 @@ int main() {
                     break;
             }
 
-            cube.getMoveHistory().push(m);
-            cube.getStateHistory().push(cube.getCurrentState());
+            cube.getMoveHistory().push_back(m);
+            cube.getStateHistory().push_back(cube.getCurrentState());
 
             cube.printCubik();
         } else if (m == 'Q' || m == 'q') {
