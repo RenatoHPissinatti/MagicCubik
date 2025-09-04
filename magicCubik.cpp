@@ -12,6 +12,8 @@ struct CubikState {
     string right[2][2];
     string front[2][2];
     string back[2][2];
+
+    deque<char> moveHistory;
 };
 
 class magicCubik2x2x2 {
@@ -23,8 +25,7 @@ private:
     string front[2][2];
     string back[2][2];
 
-    std::deque<char> moveHistory; // Fila que armazena os movimentos
-    std::deque<CubikState> stateHistory; // Fila que armazena os estados
+    deque<CubikState> stateHistory; // Fila que armazena os estados
 
 
     // Retorna o "inner" colorido (2 espaços com background ANSI)
@@ -58,54 +59,6 @@ private:
         return string("│") + inner(a) + "│" + inner(b) + "│";
     }
 
-public:
-    magicCubik2x2x2() {
-        for (int i = 0; i < 2; ++i)
-            for (int j = 0; j < 2; ++j) {
-                up[i][j] = "W" + to_string(i+j);
-                down[i][j] = "Y" + to_string(i+j);
-                left[i][j] = "O" + to_string(i+j);
-                right[i][j] = "R" + to_string(i+j);
-                front[i][j] = "G" + to_string(i+j);
-                back[i][j] = "B" + to_string(i+j);
-            }
-    }
-
-
-    void addMove(char m)
-    {
-        moveHistory.push_back(m);
-    }
-
-    std::deque<char> & getMoveHistory()
-    { 
-        return moveHistory; 
-    }
-
-    std::deque<CubikState> & getStateHistory()
-    { 
-        return stateHistory; 
-    }
-    
-
-    CubikState getCurrentState() const {
-        CubikState currentState;
-        for(int i = 0; i < 2; i++)
-        {
-            for(int j = 0; j < 2; j++)
-            {
-                currentState.up[i][j] = up[i][j];
-                currentState.down[i][j] = down[i][j];
-                currentState.left[i][j] = left[i][j];
-                currentState.right[i][j] = right[i][j];
-                currentState.front[i][j] = front[i][j];
-                currentState.back[i][j] = back[i][j];
-            }
-        }
-        return currentState;
-    }
-
-    // Movimentos (mantidos sem alteração)
     void moveU () {
         string temp[2][2];
         temp[0][0] = front[0][0]; temp[0][1] = front[0][1];
@@ -224,27 +177,91 @@ public:
         back[1][0] = tempBack;
     }
 
+
+public:
+    magicCubik2x2x2() {
+        for (int i = 0; i < 2; ++i) {
+
+            for (int j = 0; j < 2; ++j) {
+                up[i][j] = "W" + to_string(i+j);
+                down[i][j] = "Y" + to_string(i+j);
+                left[i][j] = "O" + to_string(i+j);
+                right[i][j] = "R" + to_string(i+j);
+                front[i][j] = "G" + to_string(i+j);
+                back[i][j] = "B" + to_string(i+j);
+            }
+        }
+
+        CubikState initialState = this->getCurrentState();
+        initialState.moveHistory.push_front('I');
+           
+        stateHistory.push_front(initialState);
+    }
+    
+    void performAndRecordMove(char m) { //Método centralizador que realiza os movimentos e armazena na lista
+
+        deque<char> previousHistory = stateHistory.back().moveHistory;
+
+        switch (m) {
+            case 'U': this->moveU(); break;
+            case 'D': this->moveD(); break;
+            case 'L': this->moveL(); break;
+            case 'R': this->moveR(); break;
+            case 'F': this->moveF(); break;
+            case 'B': this->moveB(); break;
+            default: return;
+        }
+        
+        CubikState newState = this->getCurrentState();
+        newState.moveHistory = previousHistory;
+        newState.moveHistory.push_back(m);
+        stateHistory.push_back(newState);
+    }
+
+    deque<CubikState> & getStateHistory()
+    { 
+        return stateHistory; 
+    }
+    
+
+    CubikState getCurrentState() const {
+        CubikState currentState;
+        for(int i = 0; i < 2; i++)
+        {
+            for(int j = 0; j < 2; j++)
+            {
+                currentState.up[i][j] = up[i][j];
+                currentState.down[i][j] = down[i][j];
+                currentState.left[i][j] = left[i][j];
+                currentState.right[i][j] = right[i][j];
+                currentState.front[i][j] = front[i][j];
+                currentState.back[i][j] = back[i][j];
+            }
+        }
+        return currentState;
+    }
+
     // Impressão com bordas compartilhadas (junções) entre células
     void printCubik() {
 
-        std::cout << std::endl;
-
         cout << "==========================================" << endl;
 
-        std::cout << "Historico de Movimentos:" << std::endl;
-    // Cria uma cópia da fila para não alterar a original
-        std::deque<char> tempMoveHistory = moveHistory;
-    
-    if (tempMoveHistory.empty()) {
-        std::cout << "Nenhum movimento registrado." << std::endl;
-        return;
-    }
+        cout << "Historico de Movimentos:" << endl;
 
-    while (!tempMoveHistory.empty()) {
-        std::cout << tempMoveHistory.front() << " ";
-        tempMoveHistory.pop_front();
+    
+    if (!stateHistory.empty()) {
+        deque<char> tempMoveHistory = stateHistory.back().moveHistory;
+
+        while (!tempMoveHistory.empty()) {
+            cout << tempMoveHistory.front() << " ";
+            tempMoveHistory.pop_front();
+        }
+        cout << endl;
+    }else{
+        cout << "Nenhum movimento registrado." << endl;
+        return;
+    
     }
-    std::cout << std::endl;
 
         cout << "==========================================" << endl;
 
@@ -294,43 +311,18 @@ public:
 
 int main() {
     magicCubik2x2x2 cube;
-    std::cout << "\n\t MAGIC CUBIK " << std::endl;
+    cout << "\n\t MAGIC CUBIK " << endl;
     cube.printCubik();
-
-    cube.getMoveHistory().push_front('I');
-    cube.getStateHistory().push_front(cube.getCurrentState());
 
     char m;
     while (true) {
-        std::cout << "Digite um movimento (U, D, L, R, F, B) ou 'Q' para sair: ";
-        std::cin >> m;
+        cout << "Digite um movimento (U, D, L, R, F, B) ou 'Q' para sair: ";
+        cin >> m;
+        m = toupper(m);
 
         if(m =='U' || m =='D' || m == 'L' || m == 'R' || m == 'F' || m == 'B') {
             
-            switch(m)
-            {
-                case 'U':
-                    cube.moveU();
-                    break;
-                case 'D':
-                    cube.moveD();
-                    break;
-                case 'L':
-                    cube.moveL();
-                    break;
-                case 'R':
-                    cube.moveR();
-                    break;
-                case 'F':
-                    cube.moveF();
-                    break;
-                case 'B':
-                    cube.moveB();
-                    break;
-            }
-
-            cube.getMoveHistory().push_back(m);
-            cube.getStateHistory().push_back(cube.getCurrentState());
+            cube.performAndRecordMove(m);
 
             cube.printCubik();
         } else if (m == 'Q' || m == 'q') {
@@ -338,7 +330,7 @@ int main() {
         }
         else
         {
-            std::cout << "Movimento inválido. Tente novamente." << std::endl;
+            cout << "Movimento inválido. Tente novamente." << endl;
         }
     }
     return 0;
