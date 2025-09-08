@@ -1,7 +1,8 @@
 #include <bits/stdc++.h>
-#include <deque>
 #include <string>
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
 
@@ -191,6 +192,25 @@ public:
            
         stateHistory.push_front(initialState);
     }
+
+    void shuffleCubik () {
+        srand(time(0));
+        long long randNum = rand();
+
+        for (long long i = randNum; i > 0; i /=6) {
+            int mov = i%6;
+            switch (mov)
+            {
+            case 0: this->moveU(); break;
+            case 1: this->moveD(); break;
+            case 2: this->moveL(); break;
+            case 3: this->moveR(); break;
+            case 4: this->moveF(); break;
+            case 5: this->moveB(); break;
+            default: return;
+            }
+        }
+    }
     
     void performAndRecordMove(char m) { //Método centralizador que realiza os movimentos e armazena na lista
 
@@ -295,6 +315,7 @@ public:
 int main() {
     magicCubik2x2x2 cube;
     cout << "\n\t MAGIC CUBIK " << endl;
+    cube.shuffleCubik();
     cube.printCubik();
 
     char m;
