@@ -7,32 +7,31 @@
 using namespace std;
 
 struct CubikState {
-    string up[2][2];
-    string down[2][2];
-    string left[2][2];
-    string right[2][2];
-    string front[2][2];
-    string back[2][2];
+    char up[2][2];
+    char down[2][2];
+    char left[2][2];
+    char right[2][2];
+    char front[2][2];
+    char back[2][2];
 
     deque<char> moveHistory;
 };
 
 class magicCubik2x2x2 {
 private:
-    string up[2][2];
-    string down[2][2];
-    string left[2][2];
-    string right[2][2];
-    string front[2][2];
-    string back[2][2];
+    char up[2][2];
+    char down[2][2];
+    char left[2][2];
+    char right[2][2];
+    char front[2][2];
+    char back[2][2];
 
     deque<CubikState> stateHistory; // Fila que armazena os estados
 
 
     // Retorna o "inner" colorido (2 espaços com background ANSI)
-    string inner(const string &s) const {
-        if (s.empty()) return "  ";
-        char c = s[0];
+    string inner(char &s) const {
+        char c = s;
         switch (c) {
             case 'W': return string("\033[107m  \033[0m");
             case 'Y': return string("\033[103m  \033[0m");
@@ -40,23 +39,13 @@ private:
             case 'R': return string("\033[48;5;196m  \033[0m");
             case 'G': return string("\033[102m  \033[0m");
             case 'B': return string("\033[104m  \033[0m");
-            default:
-                {
-                    string out = s;
-                    if (out.size() < 2) out += ' ';
-                    return out;
-                }
+            default: return string("  ");
+
         }
-    }
-    string face_top() const { return "┌──┬──┐"; }
-    string face_middle_junction() const { return "├──┼──┤"; }
-    string face_bottom() const { return "└──┴──┘"; }
-    string face_row_middle(const string &a, const string &b) const {
-        return string("│") + inner(a) + "│" + inner(b) + "│";
     }
 
     void moveU () {
-        string temp[2][2];
+        char temp[2][2];
         temp[0][0] = front[0][0]; temp[0][1] = front[0][1];
         temp[1][0] = front[1][0]; temp[1][1] = front[1][1];
 
@@ -65,7 +54,7 @@ private:
         back[0][0]  = left[0][0];  back[0][1]  = left[0][1];
         left[0][0]  = temp[0][0];  left[0][1]  = temp[0][1];
 
-        string tempUp = up[0][0];
+        char tempUp = up[0][0];
         up[0][0] = up[1][0];
         up[1][0] = up[1][1];
         up[1][1] = up[0][1];
@@ -73,7 +62,7 @@ private:
     }
 
     void moveD () {
-        string temp[2][2];
+        char temp[2][2];
         temp[0][0] = front[0][0]; temp[0][1] = front[0][1];
         temp[1][0] = front[1][0]; temp[1][1] = front[1][1];
 
@@ -82,7 +71,7 @@ private:
         back[1][0]  = left[1][0];  back[1][1]  = left[1][1];
         left[1][0]  = temp[1][0];  left[1][1]  = temp[1][1];
 
-        string tempDown = down[0][0];
+        char tempDown = down[0][0];
         down[0][0] = down[1][0];
         down[1][0] = down[1][1];
         down[1][1] = down[0][1];
@@ -90,7 +79,7 @@ private:
     }
 
     void moveR () {
-        string temp[2][2];
+        char temp[2][2];
         temp[0][0] = front[0][0]; temp[0][1] = front[0][1];
         temp[1][0] = front[1][0]; temp[1][1] = front[1][1];
 
@@ -103,7 +92,7 @@ private:
         up[1][1]    = temp[1][1];
         up[0][1]    = temp[0][1];
 
-        string tempRight = right[0][0];
+        char tempRight = right[0][0];
         right[0][0] = right[1][0];
         right[1][0] = right[1][1];
         right[1][1] = right[0][1];
@@ -111,7 +100,7 @@ private:
     }
 
     void moveL () {
-        string temp[2][2];
+        char temp[2][2];
         temp[0][0] = front[0][0]; temp[0][1] = front[0][1];
         temp[1][0] = front[1][0]; temp[1][1] = front[1][1];
 
@@ -124,7 +113,7 @@ private:
         up[0][0]    = temp[0][0];
         up[1][0]    = temp[1][0];
 
-        string tempLeft = left[0][0];
+        char tempLeft = left[0][0];
         left[0][0] = left[0][1];
         left[0][1] = left[1][1];
         left[1][1] = left[1][0];
@@ -132,7 +121,7 @@ private:
     }
 
     void moveF () {
-        string temp[2][2];
+        char temp[2][2];
         temp[0][0] = up[0][0]; temp[0][1] = up[0][1];
         temp[1][0] = up[1][0]; temp[1][1] = up[1][1];
 
@@ -145,7 +134,7 @@ private:
         right[0][0] = temp[1][0];
         right[1][0] = temp[1][1];
 
-        string tempFront = front[0][0];
+        char tempFront = front[0][0];
         front[0][0] = front[1][0];
         front[1][0] = front[1][1];
         front[1][1] = front[0][1];
@@ -153,7 +142,7 @@ private:
     }
 
     void moveB () {
-        string temp[2][2];
+        char temp[2][2];
         temp[0][0] = up[0][0]; temp[0][1] = up[0][1];
         temp[1][0] = up[1][0]; temp[1][1] = up[1][1];
 
@@ -166,7 +155,7 @@ private:
         right[0][1] = temp[0][0];
         right[1][1] = temp[0][1];
 
-        string tempBack = back[0][0];
+        char tempBack = back[0][0];
         back[0][0] = back[0][1];
         back[0][1] = back[1][1];
         back[1][1] = back[1][0];
@@ -178,12 +167,12 @@ public:
     magicCubik2x2x2() {
         for (int i = 0; i < 2; ++i) {
             for (int j = 0; j < 2; ++j) {
-                up[i][j] = "W" + to_string(i) + to_string(j);
-                down[i][j] = "Y" + to_string(i) + to_string(j);
-                left[i][j] = "O" + to_string(i) + to_string(j);
-                right[i][j] = "R" + to_string(i) + to_string(j);
-                front[i][j] = "G" + to_string(i) + to_string(j);
-                back[i][j] = "B" + to_string(i) + to_string(j);
+                up[i][j] = 'W';
+                down[i][j] = 'Y';
+                left[i][j] = 'O';
+                right[i][j] = 'R';
+                front[i][j] = 'G';
+                back[i][j] = 'B';
             }
         }
 
@@ -211,6 +200,47 @@ public:
             }
         }
     }
+
+    void checkState () {
+        bool flag = false;
+        set<char> checkUp;
+        set<char> checkDown;
+        set<char> checkLeft;
+        set<char> checkRight;
+        set<char> checkFront;
+        set<char> checkBack;
+
+        for (int i = 0; i < 2; ++i) {
+            if (flag) break;
+            for (int j = 0; j < 2; ++j) {
+
+                checkUp.insert(up[i][j]);
+                checkDown.insert(down[i][j]);
+                checkLeft.insert(left[i][j]);
+                checkRight.insert(right[i][j]);
+                checkFront.insert(front[i][j]);
+                checkBack.insert(back[i][j]);
+
+                if (
+                    checkUp.size() > 1 ||
+                    checkDown.size() > 1 || 
+                    checkLeft.size() > 1 ||
+                    checkRight.size() > 1 ||
+                    checkFront.size() > 1 ||
+                    checkBack.size() > 1
+                ) {
+                    flag = true;
+                    break;
+                }
+            }
+        }
+
+        if (!flag) {
+            cout << "XOOOOOOOOOOTAAAA TU MERECE IRMÃO PARABÉNS ME ARROMBA ENTOLA A PICA NO VECOOOWW!";
+        }
+
+    }
+
     
     void performAndRecordMove(char m) { //Método centralizador que realiza os movimentos e armazena na lista
 
@@ -277,35 +307,31 @@ public:
 
         cout << "==========================================" << endl;
 
-        cout << "\t" << " " << face_top() << endl;
-        cout << "\t" << " " << face_row_middle(up[0][0], up[0][1]) << endl;
-        cout << "\t" << " " << face_middle_junction() << endl;
-        cout << "\t" << " " << face_row_middle(up[1][0], up[1][1]) << endl;
-        cout << "\t" << " " << face_bottom() << endl;
+        cout << "\t" << " " << endl;
+        cout << "       " << inner(up[0][0]) << " " << inner(up[0][1]) << endl;
+        cout << "       " << endl;
+        cout << "       " << inner(up[1][0]) << " " << inner(up[1][1]) << endl;
+        cout << "       " << endl;
 
         cout
-             << face_top() << "  " << face_top() << "  " << face_top() << "  " << face_top() << endl;
+             << inner(left[0][0]) << " " <<  inner(left[0][1]) << "  "
+             << inner(front[0][0]) << " " << inner(front[0][1]) << "  "
+             << inner(right[0][0]) << " " <<  inner(right[0][1]) << "  "
+             << inner(back[0][0]) << " " <<  inner(back[0][1]) << endl;
         cout
-             << face_row_middle(left[0][0], left[0][1]) << "  "
-             << face_row_middle(front[0][0], front[0][1]) << "  "
-             << face_row_middle(right[0][0], right[0][1]) << "  "
-             << face_row_middle(back[0][0], back[0][1]) << endl;
+             << "  "
+             << endl;
         cout
-             << face_middle_junction() << "  " << face_middle_junction() << "  "
-             << face_middle_junction() << "  " << face_middle_junction() << endl;
-        cout
-             << face_row_middle(left[1][0], left[1][1]) << "  "
-             << face_row_middle(front[1][0], front[1][1]) << "  "
-             << face_row_middle(right[1][0], right[1][1]) << "  "
-             << face_row_middle(back[1][0], back[1][1]) << endl;
-        cout
-             << face_bottom() << "  " << face_bottom() << "  " << face_bottom() << "  " << face_bottom() << endl;
+             << inner(left[1][0]) << " " << inner(left[1][1]) << "  "
+             << inner(front[1][0]) << " " <<  inner(front[1][1]) << "  "
+             << inner(right[1][0]) << " " << inner(right[1][1]) << "  "
+             << inner(back[1][0]) << " " <<  inner(back[1][1]) << endl;
 
-        cout << "\t" << " " << face_top() << endl;
-        cout << "\t" << " " << face_row_middle(down[0][0], down[0][1]) << endl;
-        cout << "\t" << " " << face_middle_junction() << endl;
-        cout << "\t" << " " << face_row_middle(down[1][0], down[1][1]) << endl;
-        cout << "\t" << " " << face_bottom() << endl;
+        cout << "\t" << endl;
+        cout << "       " << inner(down[0][0]) << " " << inner(down[0][1]) << endl;
+        cout << "       " << " " << endl;
+        cout << "       " << inner(down[1][0]) << " " << inner(down[1][1]) << endl;
+        cout << "       " << " " << endl;
 
         cout << "==========================================" << endl;
         cout << " MOVIMENTOS: U D L R F B " << endl << endl;
@@ -315,7 +341,7 @@ public:
 int main() {
     magicCubik2x2x2 cube;
     cout << "\n\t MAGIC CUBIK " << endl;
-    cube.shuffleCubik();
+    //cube.shuffleCubik();
     cube.printCubik();
 
     char m;
@@ -325,10 +351,10 @@ int main() {
         m = toupper(m);
 
         if(m =='U' || m =='D' || m == 'L' || m == 'R' || m == 'F' || m == 'B') {
-            
             cube.performAndRecordMove(m);
 
             cube.printCubik();
+            cube.checkState();
         } else if (m == 'Q' || m == 'q') {
             break;
         }
