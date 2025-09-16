@@ -373,6 +373,14 @@ public:
     }
 };
 
+
+class algorithms {
+    public:
+        vector<char> bfs(const CubikState &start);
+        vector<char> dfs(const CubikState &start, int godNumber = 14);
+        vector<char> aEstrela(const CubikState &start);
+};
+
 int main() {
     clearScreen();
     magicCubik2x2x2 cube;
