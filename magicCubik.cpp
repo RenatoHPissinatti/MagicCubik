@@ -4,6 +4,16 @@
 #include <cstdlib>
 #include <ctime>
 
+#ifdef _WIN32
+    #define CLEAR_SCREEN "cls"
+#else
+    #define CLEAR_SCREEN "clear"
+#endif
+
+inline void clearScreen() {
+    std::system(CLEAR_SCREEN);
+}
+
 using namespace std;
 
 struct CubikState {
@@ -30,12 +40,11 @@ private:
 
 
     // Retorna o "inner" colorido (2 espaços com background ANSI)
-    string inner(char &s) const {
-        char c = s;
+    string inner(char c) const {
         switch (c) {
             case 'W': return string("\033[107m  \033[0m");
             case 'Y': return string("\033[103m  \033[0m");
-            case 'O': return string("\033[48;5;202m  \033[0m");
+            case 'O': return string("\033[48;5;208m  \033[0m");
             case 'R': return string("\033[48;5;196m  \033[0m");
             case 'G': return string("\033[102m  \033[0m");
             case 'B': return string("\033[104m  \033[0m");
@@ -202,7 +211,7 @@ public:
     }
 
     void checkState () {
-        bool flag = false;
+        bool solved = false;
         set<char> checkUp;
         set<char> checkDown;
         set<char> checkLeft;
@@ -211,7 +220,7 @@ public:
         set<char> checkBack;
 
         for (int i = 0; i < 2; ++i) {
-            if (flag) break;
+            if (solved) break;
             for (int j = 0; j < 2; ++j) {
 
                 checkUp.insert(up[i][j]);
@@ -229,16 +238,34 @@ public:
                     checkFront.size() > 1 ||
                     checkBack.size() > 1
                 ) {
-                    flag = true;
+                    solved = true;
                     break;
                 }
             }
         }
 
-        if (!flag) {
-            cout << "XOOOOOOOOOOTAAAA TU MERECE IRMÃO PARABÉNS ME ARROMBA ENTOLA A PICA NO VECOOOWW!";
-        }
+        if (!solved) {
+            cout << "Solução encontrada!!!" << endl << endl;
+            cout << "Movimentos realizados: ";
+            if (!stateHistory.empty()) {
+                deque<char> tempHistory = stateHistory.back().moveHistory;
+                int moveCount = 0;
 
+                for (char c : tempHistory) {
+                    if (c != 'I') ++moveCount;
+                }
+                cout << moveCount << endl;
+                cout << "Sequência de movimentos: ";
+                
+                for (char c : tempHistory) {
+                    if (c != 'I') cout << c << " ";
+                }
+                cout << endl;
+                stateHistory.clear();
+            } else {
+                cout << "0" << endl;
+            }
+        }
     }
 
     
@@ -285,7 +312,7 @@ public:
 
     // Impressão com bordas compartilhadas (junções) entre células
     void printCubik() {
-
+/*
         cout << "==========================================" << endl;
 
         cout << "Historico de Movimentos:" << endl;
@@ -304,7 +331,7 @@ public:
         return;
     
     }
-
+*/    
         cout << "==========================================" << endl;
 
         cout << "\t" << " " << endl;
@@ -334,32 +361,43 @@ public:
         cout << "       " << " " << endl;
 
         cout << "==========================================" << endl;
-        cout << " MOVIMENTOS: U D L R F B " << endl << endl;
+        cout << "\t" << "MANUAL DE INSTRUÇÕES" << endl;
+        cout << "U -> Face superior" << "     |  ";
+        cout << "D -> Face inferior" << endl;
+        cout << "L -> Face esquerda" << "     |  ";
+        cout << "R -> Face direita" << endl;
+        cout << "F -> Face frontal" << "      |  ";
+        cout << "B -> Face traseira" << endl;
+        cout << "S -> Embaralhar o cubo" << " |  ";
+        cout << "Q -> Encerrar programa" << endl << endl;
     }
 };
 
 int main() {
+    clearScreen();
     magicCubik2x2x2 cube;
-    cout << "\n\t MAGIC CUBIK " << endl;
-    //cube.shuffleCubik();
-    cube.printCubik();
 
     char m;
     while (true) {
-        cout << "Digite um movimento (U, D, L, R, F, B) ou 'Q' para sair: ";
+        cout << "\n\t MAGIC CUBIK " << endl;
+        cube.printCubik();
+        
+        cout << "INSTRUÇÃO : ";
         cin >> m;
+        clearScreen();
         m = toupper(m);
 
         if(m =='U' || m =='D' || m == 'L' || m == 'R' || m == 'F' || m == 'B') {
             cube.performAndRecordMove(m);
-
-            cube.printCubik();
             cube.checkState();
+
         } else if (m == 'Q' || m == 'q') {
             break;
         }
-        else
-        {
+        else if (m == 'S') {
+            cube.shuffleCubik();
+
+        } else {
             cout << "Movimento inválido. Tente novamente." << endl;
         }
     }
