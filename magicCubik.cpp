@@ -1,9 +1,3 @@
-<<<<<<< Updated upstream
-#include <bits/stdc++.h>
-#include <deque>
-#include <string>
-#include <iostream>
-=======
 #include <iostream>
 #include <string>
 #include <vector>
@@ -13,7 +7,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <algorithm>
-#include <map> // NOVO: Para a heurística
+#include <map>
 
 #ifdef _WIN32
     #define CLEAR_SCREEN "cls"
@@ -24,36 +18,32 @@
 inline void clearScreen() {
     std::system(CLEAR_SCREEN);
 }
->>>>>>> Stashed changes
 
 using namespace std;
 
 // Estrutura que representa um estado (configuração) do cubo.
 struct CubikState {
-    string up[2][2];
-    string down[2][2];
-    string left[2][2];
-    string right[2][2];
-    string front[2][2];
-    string back[2][2];
+    char up[2][2];
+    char down[2][2];
+    char left[2][2];
+    char right[2][2];
+    char front[2][2];
+    char back[2][2];
 
-    // Armazena a sequência de movimentos para chegar a este estado.
+
     vector<char> moveHistory; 
     
-    // MODIFICADO: Campos para o algoritmo A*
-    int g_cost; // Custo real do estado inicial até o estado atual (número de movimentos)
-    int h_cost; // Custo estimado (heurística) do estado atual até a solução
+   
+    int g_cost; 
+    int h_cost; 
 
-    // Função para calcular o custo total f(n) = g(n) + h(n)
+    
     int f_cost() const {
         return g_cost + h_cost;
     }
 };
 
-// NOVO: Estrutura comparadora para a fila de prioridade do A*
-// A fila de prioridade do C++ é um max-heap por padrão.
-// Precisamos de um min-heap para obter o estado com o MENOR f_cost.
-// Por isso, a lógica é invertida (retorna true se 'a' tiver custo maior que 'b').
+
 struct CompareState {
     bool operator()(const CubikState& a, const CubikState& b) const {
         return a.f_cost() > b.f_cost();
@@ -63,36 +53,18 @@ struct CompareState {
 
 class magicCubik2x2x2 {
 private:
-    string up[2][2];
-    string down[2][2];
-    string left[2][2];
-    string right[2][2];
-    string front[2][2];
-    string back[2][2];
+    char up[2][2];
+    char down[2][2];
+    char left[2][2];
+    char right[2][2];
+    char front[2][2];
+    char back[2][2];
 
     deque<CubikState> stateHistory; // Fila que armazena os estados para o modo manual
 
     // Retorna o "inner" colorido (2 espaços com background ANSI)
-    string inner(const string &s) const {
-        if (s.empty()) return "  ";
-        char c = s[0];
+    string inner(char c) const {
         switch (c) {
-<<<<<<< Updated upstream
-            case 'W': return string("\033[107m  \033[0m");
-            case 'Y': return string("\033[103m  \033[0m");
-            case 'O': return string("\033[48;5;202m  \033[0m");
-            case 'R': return string("\033[48;5;196\m  \033[0m");
-            case 'G': return string("\033[102m  \033[0m");
-            case 'B': return string("\033[104m  \033[0m");
-              // blue
-            default:
-                // fallback: mostra a própria string (até 2 chars) sem cor
-                {
-                    string out = s;
-                    if (out.size() < 2) out += ' ';
-                    return out;
-                }
-=======
             case 'W': return string("\033[107m  \033[0m"); // Branco
             case 'Y': return string("\033[103m  \033[0m"); // Amarelo
             case 'O': return string("\033[48;5;208m  \033[0m"); // Laranja
@@ -100,21 +72,11 @@ private:
             case 'G': return string("\033[102m  \033[0m"); // Verde
             case 'B': return string("\033[104m  \033[0m"); // Azul
             default: return string("  ");
->>>>>>> Stashed changes
         }
     }
 
-    // Componentes de uma face 2x2 com bordas compartilhadas
-    string face_top() const { return "┌──┬──┐"; }
-    string face_middle_junction() const { return "├──┼──┤"; }
-    string face_bottom() const { return "└──┴──┘"; }
-    // linha do meio da face contendo os dois inner (por ex: │<i0>│<i1>│)
-    string face_row_middle(const string &a, const string &b) const {
-        return string("│") + inner(a) + "│" + inner(b) + "│";
-    }
-
     void moveU () {
-        string temp[2][2];
+        char temp[2][2];
         temp[0][0] = front[0][0]; temp[0][1] = front[0][1];
         
         front[0][0] = right[0][0]; front[0][1] = right[0][1];
@@ -122,7 +84,7 @@ private:
         back[0][0]  = left[0][0];  back[0][1]  = left[0][1];
         left[0][0]  = temp[0][0];  left[0][1]  = temp[0][1];
 
-        string tempUp = up[0][0];
+        char tempUp = up[0][0];
         up[0][0] = up[1][0];
         up[1][0] = up[1][1];
         up[1][1] = up[0][1];
@@ -130,12 +92,7 @@ private:
     }
 
     void moveD () {
-<<<<<<< Updated upstream
-        string temp[2][2];
-        temp[0][0] = front[0][0]; temp[0][1] = front[0][1];
-=======
         char temp[2][2];
->>>>>>> Stashed changes
         temp[1][0] = front[1][0]; temp[1][1] = front[1][1];
         
         front[1][0] = left[1][0]; front[1][1] = left[1][1];
@@ -143,7 +100,7 @@ private:
         back[1][0]  = right[1][0];  back[1][1]  = right[1][1];
         right[1][0]  = temp[1][0];  right[1][1]  = temp[1][1];
 
-        string tempDown = down[0][0];
+        char tempDown = down[0][0];
         down[0][0] = down[1][0];
         down[1][0] = down[1][1];
         down[1][1] = down[0][1];
@@ -151,20 +108,6 @@ private:
     }
 
     void moveR () {
-<<<<<<< Updated upstream
-        string temp[2][2];
-        temp[0][0] = front[0][0]; temp[0][1] = front[0][1];
-        temp[1][0] = front[1][0]; temp[1][1] = front[1][1];
-
-        front[0][1] = down[0][1];
-        front[1][1] = down[1][1];
-        down[0][1]  = back[1][0];
-        down[1][1]  = back[0][0];
-        back[0][0]  = up[1][1];
-        back[1][0]  = up[0][1];
-        up[1][1]    = temp[1][1];
-        up[0][1]    = temp[0][1];
-=======
         char temp[2];
         temp[0] = front[0][1]; temp[1] = front[1][1];
         
@@ -172,9 +115,8 @@ private:
         down[0][1]  = back[1][0]; down[1][1]  = back[0][0];
         back[1][0]  = up[0][1];   back[0][0]  = up[1][1];
         up[0][1]    = temp[0];    up[1][1]    = temp[1];
->>>>>>> Stashed changes
 
-        string tempRight = right[0][0];
+        char tempRight = right[0][0];
         right[0][0] = right[1][0];
         right[1][0] = right[1][1];
         right[1][1] = right[0][1];
@@ -182,32 +124,6 @@ private:
     }
     
     void moveL () {
-<<<<<<< Updated upstream
-        string temp[2][2];
-        temp[0][0] = front[0][0]; temp[0][1] = front[0][1];
-        temp[1][0] = front[1][0]; temp[1][1] = front[1][1];
-
-        front[0][0] = down[0][0];
-        front[1][0] = down[1][0];
-        down[0][0]  = back[1][1];
-        down[1][0]  = back[0][1];
-        back[1][1]  = up[0][0];
-        back[0][1]  = up[1][0];
-        up[0][0]    = temp[0][0];
-        up[1][0]    = temp[1][0];
-
-        string tempLeft = left[0][0];
-        left[0][0] = left[0][1];
-        left[0][1] = left[1][1];
-        left[1][1] = left[1][0];
-        left[1][0] = tempLeft;
-    }
-
-    void moveF () {
-        string temp[2][2];
-        temp[0][0] = up[0][0]; temp[0][1] = up[0][1];
-        temp[1][0] = up[1][0]; temp[1][1] = up[1][1];
-=======
         char temp[2];
         temp[0] = front[0][0]; temp[1] = front[1][0];
         
@@ -226,14 +142,13 @@ private:
     void moveF () {
         char temp[2];
         temp[0] = up[1][0]; temp[1] = up[1][1];
->>>>>>> Stashed changes
 
         up[1][0] = left[1][1];   up[1][1] = left[0][1];
         left[1][1] = down[0][1]; left[0][1] = down[0][0];
         down[0][1] = right[0][0]; down[0][0] = right[1][0];
         right[0][0] = temp[0];    right[1][0] = temp[1];
 
-        string tempFront = front[0][0];
+        char tempFront = front[0][0];
         front[0][0] = front[1][0];
         front[1][0] = front[1][1];
         front[1][1] = front[0][1];
@@ -241,26 +156,6 @@ private:
     }
 
     void moveB () {
-<<<<<<< Updated upstream
-        string temp[2][2];
-        temp[0][0] = up[0][0]; temp[0][1] = up[0][1];
-        temp[1][0] = up[1][0]; temp[1][1] = up[1][1];
-
-        up[0][0] = left[1][0];
-        up[0][1] = left[0][0];
-        left[1][0] = down[1][1];
-        left[0][0] = down[1][0];
-        down[1][1] = right[0][1];
-        down[1][0] = right[1][1];
-        right[0][1] = temp[0][0];
-        right[1][1] = temp[0][1];
-
-        string tempBack = back[0][0];
-        back[0][0] = back[0][1];
-        back[0][1] = back[1][1];
-        back[1][1] = back[1][0];
-        back[1][0] = tempBack;
-=======
         char temp[2];
         temp[0] = up[0][0]; temp[1] = up[0][1];
 
@@ -274,7 +169,6 @@ private:
         back[1][0] = back[1][1];
         back[1][1] = back[0][1];
         back[0][1] = tempBack;
->>>>>>> Stashed changes
     }
 
 public:
@@ -284,23 +178,13 @@ public:
     
     void reset() {
         for (int i = 0; i < 2; ++i) {
-
             for (int j = 0; j < 2; ++j) {
-<<<<<<< Updated upstream
-                up[i][j] = "W" + to_string(i+j);
-                down[i][j] = "Y" + to_string(i+j);
-                left[i][j] = "O" + to_string(i+j);
-                right[i][j] = "R" + to_string(i+j);
-                front[i][j] = "G" + to_string(i+j);
-                back[i][j] = "B" + to_string(i+j);
-=======
                 up[i][j]    = 'W';
                 down[i][j]  = 'Y';
                 left[i][j]  = 'O';
                 right[i][j] = 'R';
                 front[i][j] = 'G';
                 back[i][j]  = 'B';
->>>>>>> Stashed changes
             }
         }
         stateHistory.clear();
@@ -309,20 +193,6 @@ public:
         stateHistory.push_front(initialState);
     }
     
-<<<<<<< Updated upstream
-    void performAndRecordMove(char m) { //Método centralizador que realiza os movimentos e armazena na lista
-
-        deque<char> previousHistory = stateHistory.back().moveHistory;
-
-        switch (m) {
-            case 'U': this->moveU(); break;
-            case 'D': this->moveD(); break;
-            case 'L': this->moveL(); break;
-            case 'R': this->moveR(); break;
-            case 'F': this->moveF(); break;
-            case 'B': this->moveB(); break;
-            default: return;
-=======
     void applyMove(char move) {
         switch(move) {
             case 'U': moveU(); break;
@@ -336,7 +206,7 @@ public:
 
     void shuffleCubik () {
         srand(time(0));
-        int shuffle_moves = 6;
+        int shuffle_moves = 1+ rand()%7; 
         char moves[] = {'U', 'D', 'L', 'R', 'F', 'B'};
         
         reset();
@@ -385,7 +255,6 @@ public:
             if (previousHistory.front() == 'I') {
                 previousHistory.clear();
             }
->>>>>>> Stashed changes
         }
         
         applyMove(m);
@@ -398,21 +267,11 @@ public:
 
     CubikState getCurrentState() const {
         CubikState currentState;
-<<<<<<< Updated upstream
-        for(int i = 0; i < 2; i++)
-        {
-            for(int j = 0; j < 2; j++)
-            {
-                currentState.up[i][j] = up[i][j];
-                currentState.down[i][j] = down[i][j];
-                currentState.left[i][j] = left[i][j];
-=======
         for(int i = 0; i < 2; i++) {
             for(int j = 0; j < 2; j++) {
                 currentState.up[i][j]    = up[i][j];
                 currentState.down[i][j]  = down[i][j];
                 currentState.left[i][j]  = left[i][j];
->>>>>>> Stashed changes
                 currentState.right[i][j] = right[i][j];
                 currentState.front[i][j] = front[i][j];
                 currentState.back[i][j]  = back[i][j];
@@ -420,17 +279,6 @@ public:
         }
         return currentState;
     }
-<<<<<<< Updated upstream
-
-    // Impressão com bordas compartilhadas (junções) entre células
-    void printCubik() {
-
-        cout << "==========================================" << endl;
-
-        cout << "Historico de Movimentos:" << endl;
-
-=======
->>>>>>> Stashed changes
     
     void setState(const CubikState& state) {
          for(int i = 0; i < 2; i++) {
@@ -444,55 +292,6 @@ public:
             }
         }
     }
-<<<<<<< Updated upstream
-
-        cout << "==========================================" << endl;
-
-        // ---- UP (centrado com tab)
-        cout << "\t" << " " << face_top() << endl;
-        cout << "\t" << " " << face_row_middle(up[0][0], up[0][1]) << endl;
-        cout << "\t" << " " << face_middle_junction() << endl;
-        cout << "\t" << " " << face_row_middle(up[1][0], up[1][1]) << endl;
-        cout << "\t" << " " << face_bottom() << endl;
-
-        // ---- MIDDLE: Left | Front | Right | Back
-        // top borders
-        cout
-             << face_top() << "  " << face_top() << "  " << face_top() << "  " << face_top() << endl;
-        // row 0 middles
-        cout
-             << face_row_middle(left[0][0], left[0][1]) << "  "
-             << face_row_middle(front[0][0], front[0][1]) << "  "
-             << face_row_middle(right[0][0], right[0][1]) << "  "
-             << face_row_middle(back[0][0], back[0][1]) << endl;
-        // junctions between row 0 and row 1
-        cout
-             << face_middle_junction() << "  " << face_middle_junction() << "  "
-             << face_middle_junction() << "  " << face_middle_junction() << endl;
-        // row 1 middles
-        cout
-             << face_row_middle(left[1][0], left[1][1]) << "  "
-             << face_row_middle(front[1][0], front[1][1]) << "  "
-             << face_row_middle(right[1][0], right[1][1]) << "  "
-             << face_row_middle(back[1][0], back[1][1]) << endl;
-        // bottom borders
-        cout
-             << face_bottom() << "  " << face_bottom() << "  " << face_bottom() << "  " << face_bottom() << endl;
-
-        // ---- DOWN (centrado)
-        cout << "\t" << " " << face_top() << endl;
-        cout << "\t" << " " << face_row_middle(down[0][0], down[0][1]) << endl;
-        cout << "\t" << " " << face_middle_junction() << endl;
-        cout << "\t" << " " << face_row_middle(down[1][0], down[1][1]) << endl;
-        cout << "\t" << " " << face_bottom() << endl;
-
-        cout << "==========================================" << endl;
-        cout << " MOVIMENTOS: U D L R F B " << endl << endl;
-
-    }
-};
-
-=======
 
     void printCubik() {
         cout << "==========================================" << endl;
@@ -526,7 +325,7 @@ public:
         cout << "F -> Face frontal  | B -> Face traseira" << endl;
         cout << "S -> Embaralhar    | Q -> Sair" << endl;
         cout << "Z -> Resolver (DFS)| X -> Resolver (BFS)" << endl;
-        cout << "A -> Resolver (A*) | C -> Limpar" << endl; // MODIFICADO
+        cout << "A -> Resolver (A*) | C -> Limpar" << endl; 
     }
 };
 
@@ -682,9 +481,10 @@ private:
     int heuristic_misplaced_stickers(const CubikState& s) const {
         int misplaced_count = 0;
 
+        // Cores alvo para cada face no estado resolvido
         const char target_colors[6] = {'W', 'Y', 'O', 'R', 'G', 'B'};
         
-    
+        // Ponteiros para as faces para facilitar a iteração
         const char (*faces[6])[2][2] = {&s.up, &s.down, &s.left, &s.right, &s.front, &s.back};
 
         for (int f = 0; f < 6; ++f) { // Itera sobre as 6 faces
@@ -694,7 +494,7 @@ private:
                     color_counts[(*faces[f])[i][j]]++;
                 }
             }
-           
+            // O número de adesivos errados na face é 4 menos a contagem da cor mais frequente.
             int max_same_color = 0;
             if(!color_counts.empty()){
                 for(auto const& [key, val] : color_counts){
@@ -706,7 +506,8 @@ private:
             misplaced_count += (4 - max_same_color);
         }
         
-        
+        // Heurística: número de adesivos fora do lugar dividido por um fator.
+        // Dividir por 4 é uma estimativa conservadora de quantos podem ser corrigidos por movimento.
         return misplaced_count / 4;
     }
 
@@ -745,17 +546,9 @@ private:
     }
 };
 
->>>>>>> Stashed changes
 int main() {
+    clearScreen();
     magicCubik2x2x2 cube;
-<<<<<<< Updated upstream
-    cout << "\n\t MAGIC CUBIK " << endl;
-    cube.printCubik();
-
-    char m;
-    while (true) {
-        cout << "Digite um movimento (U, D, L, R, F, B) ou 'Q' para sair: ";
-=======
     algorithms solver;
 
     char m;
@@ -764,22 +557,10 @@ int main() {
         cube.printCubik();
         
         cout << "INSTRUÇÃO : ";
->>>>>>> Stashed changes
         cin >> m;
         m = toupper(m);
 
         if(m =='U' || m =='D' || m == 'L' || m == 'R' || m == 'F' || m == 'B') {
-<<<<<<< Updated upstream
-            
-            cube.performAndRecordMove(m);
-
-            cube.printCubik();
-        } else if (m == 'Q' || m == 'q') {
-            break;
-        }
-        else
-        {
-=======
             clearScreen();
             cube.performAndRecordMove(m);
             cube.checkStateAndPrintSolution();
@@ -846,7 +627,7 @@ int main() {
                  }
              }
          }
-       
+        
         else if (m == 'A') {
              clearScreen();
              cout << "Procurando a solução via A*..." << endl;
@@ -874,7 +655,6 @@ int main() {
         }
         else {
             clearScreen();
->>>>>>> Stashed changes
             cout << "Movimento inválido. Tente novamente." << endl;
         }
     }
