@@ -1,8 +1,14 @@
-#include <bits/stdc++.h>
-#include <string>
 #include <iostream>
+#include <string>
+#include <vector>
+#include <deque>
+#include <queue>
+#include <set>
 #include <cstdlib>
 #include <ctime>
+#include <algorithm>
+#include <map>
+#include <stack>
 
 #ifdef _WIN32
     #define CLEAR_SCREEN "cls"
@@ -16,6 +22,7 @@ inline void clearScreen() {
 
 using namespace std;
 
+// Estrutura que representa um estado (configuração) do cubo.
 struct CubikState {
     char up[2][2];
     char down[2][2];
@@ -24,8 +31,26 @@ struct CubikState {
     char front[2][2];
     char back[2][2];
 
-    deque<char> moveHistory;
+
+    vector<char> moveHistory; 
+    
+   
+    int g_cost; 
+    int h_cost; 
+
+    
+    int f_cost() const {
+        return g_cost + h_cost;
+    }
 };
+
+
+struct CompareState {
+    bool operator()(const CubikState& a, const CubikState& b) const {
+        return a.f_cost() > b.f_cost();
+    }
+};
+
 
 class magicCubik2x2x2 {
 private:
@@ -36,28 +61,25 @@ private:
     char front[2][2];
     char back[2][2];
 
-    deque<CubikState> stateHistory; // Fila que armazena os estados
-
+    deque<CubikState> stateHistory; // Fila que armazena os estados para o modo manual
 
     // Retorna o "inner" colorido (2 espaços com background ANSI)
     string inner(char c) const {
         switch (c) {
-            case 'W': return string("\033[107m  \033[0m");
-            case 'Y': return string("\033[103m  \033[0m");
-            case 'O': return string("\033[48;5;208m  \033[0m");
-            case 'R': return string("\033[48;5;196m  \033[0m");
-            case 'G': return string("\033[102m  \033[0m");
-            case 'B': return string("\033[104m  \033[0m");
+            case 'W': return string("\033[107m  \033[0m"); // Branco
+            case 'Y': return string("\033[103m  \033[0m"); // Amarelo
+            case 'O': return string("\033[48;5;208m  \033[0m"); // Laranja
+            case 'R': return string("\033[48;5;196m  \033[0m"); // Vermelho
+            case 'G': return string("\033[102m  \033[0m"); // Verde
+            case 'B': return string("\033[104m  \033[0m"); // Azul
             default: return string("  ");
-
         }
     }
 
     void moveU () {
         char temp[2][2];
         temp[0][0] = front[0][0]; temp[0][1] = front[0][1];
-        temp[1][0] = front[1][0]; temp[1][1] = front[1][1];
-
+        
         front[0][0] = right[0][0]; front[0][1] = right[0][1];
         right[0][0] = back[0][0];  right[0][1] = back[0][1];
         back[0][0]  = left[0][0];  back[0][1]  = left[0][1];
@@ -72,13 +94,12 @@ private:
 
     void moveD () {
         char temp[2][2];
-        temp[0][0] = front[0][0]; temp[0][1] = front[0][1];
         temp[1][0] = front[1][0]; temp[1][1] = front[1][1];
-
-        front[1][0] = right[1][0]; front[1][1] = right[1][1];
-        right[1][0] = back[1][0];  right[1][1] = back[1][1];
-        back[1][0]  = left[1][0];  back[1][1]  = left[1][1];
-        left[1][0]  = temp[1][0];  left[1][1]  = temp[1][1];
+        
+        front[1][0] = left[1][0]; front[1][1] = left[1][1];
+        left[1][0] = back[1][0];  left[1][1] = back[1][1];
+        back[1][0]  = right[1][0];  back[1][1]  = right[1][1];
+        right[1][0]  = temp[1][0];  right[1][1]  = temp[1][1];
 
         char tempDown = down[0][0];
         down[0][0] = down[1][0];
@@ -88,18 +109,13 @@ private:
     }
 
     void moveR () {
-        char temp[2][2];
-        temp[0][0] = front[0][0]; temp[0][1] = front[0][1];
-        temp[1][0] = front[1][0]; temp[1][1] = front[1][1];
-
-        front[0][1] = down[0][1];
-        front[1][1] = down[1][1];
-        down[0][1]  = back[1][0];
-        down[1][1]  = back[0][0];
-        back[0][0]  = up[1][1];
-        back[1][0]  = up[0][1];
-        up[1][1]    = temp[1][1];
-        up[0][1]    = temp[0][1];
+        char temp[2];
+        temp[0] = front[0][1]; temp[1] = front[1][1];
+        
+        front[0][1] = down[0][1]; front[1][1] = down[1][1];
+        down[0][1]  = back[1][0]; down[1][1]  = back[0][0];
+        back[1][0]  = up[0][1];   back[0][0]  = up[1][1];
+        up[0][1]    = temp[0];    up[1][1]    = temp[1];
 
         char tempRight = right[0][0];
         right[0][0] = right[1][0];
@@ -107,41 +123,31 @@ private:
         right[1][1] = right[0][1];
         right[0][1] = tempRight;
     }
-
+    
     void moveL () {
-        char temp[2][2];
-        temp[0][0] = front[0][0]; temp[0][1] = front[0][1];
-        temp[1][0] = front[1][0]; temp[1][1] = front[1][1];
-
-        front[0][0] = down[0][0];
-        front[1][0] = down[1][0];
-        down[0][0]  = back[1][1];
-        down[1][0]  = back[0][1];
-        back[1][1]  = up[0][0];
-        back[0][1]  = up[1][0];
-        up[0][0]    = temp[0][0];
-        up[1][0]    = temp[1][0];
+        char temp[2];
+        temp[0] = front[0][0]; temp[1] = front[1][0];
+        
+        front[0][0] = up[0][0];   front[1][0] = up[1][0];
+        up[0][0]    = back[1][1]; up[1][0]    = back[0][1];
+        back[1][1]  = down[0][0]; back[0][1]  = down[1][0];
+        down[0][0]  = temp[0];    down[1][0]  = temp[1];
 
         char tempLeft = left[0][0];
-        left[0][0] = left[0][1];
-        left[0][1] = left[1][1];
-        left[1][1] = left[1][0];
-        left[1][0] = tempLeft;
+        left[0][0] = left[1][0];
+        left[1][0] = left[1][1];
+        left[1][1] = left[0][1];
+        left[0][1] = tempLeft;
     }
 
     void moveF () {
-        char temp[2][2];
-        temp[0][0] = up[0][0]; temp[0][1] = up[0][1];
-        temp[1][0] = up[1][0]; temp[1][1] = up[1][1];
+        char temp[2];
+        temp[0] = up[1][0]; temp[1] = up[1][1];
 
-        up[1][0] = left[1][1];
-        up[1][1] = left[0][1];
-        left[1][1] = down[0][1];
-        left[0][1] = down[0][0];
-        down[0][1] = right[0][0];
-        down[0][0] = right[1][0];
-        right[0][0] = temp[1][0];
-        right[1][0] = temp[1][1];
+        up[1][0] = left[1][1];   up[1][1] = left[0][1];
+        left[1][1] = down[0][1]; left[0][1] = down[0][0];
+        down[0][1] = right[0][0]; down[0][0] = right[1][0];
+        right[0][0] = temp[0];    right[1][0] = temp[1];
 
         char tempFront = front[0][0];
         front[0][0] = front[1][0];
@@ -151,137 +157,108 @@ private:
     }
 
     void moveB () {
-        char temp[2][2];
-        temp[0][0] = up[0][0]; temp[0][1] = up[0][1];
-        temp[1][0] = up[1][0]; temp[1][1] = up[1][1];
+        char temp[2];
+        temp[0] = up[0][0]; temp[1] = up[0][1];
 
-        up[0][0] = left[1][0];
-        up[0][1] = left[0][0];
-        left[1][0] = down[1][1];
-        left[0][0] = down[1][0];
-        down[1][1] = right[0][1];
-        down[1][0] = right[1][1];
-        right[0][1] = temp[0][0];
-        right[1][1] = temp[0][1];
-
+        up[0][0] = right[0][1]; up[0][1] = right[1][1];
+        right[0][1] = down[1][1]; right[1][1] = down[1][0];
+        down[1][1] = left[1][0]; down[1][0] = left[0][0];
+        left[1][0] = temp[0]; left[0][0] = temp[1];
+        
         char tempBack = back[0][0];
-        back[0][0] = back[0][1];
-        back[0][1] = back[1][1];
-        back[1][1] = back[1][0];
-        back[1][0] = tempBack;
+        back[0][0] = back[1][0];
+        back[1][0] = back[1][1];
+        back[1][1] = back[0][1];
+        back[0][1] = tempBack;
     }
-
 
 public:
     magicCubik2x2x2() {
+        reset();
+    }
+    
+    void reset() {
         for (int i = 0; i < 2; ++i) {
             for (int j = 0; j < 2; ++j) {
-                up[i][j] = 'W';
-                down[i][j] = 'Y';
-                left[i][j] = 'O';
+                up[i][j]    = 'W';
+                down[i][j]  = 'Y';
+                left[i][j]  = 'O';
                 right[i][j] = 'R';
                 front[i][j] = 'G';
-                back[i][j] = 'B';
+                back[i][j]  = 'B';
             }
         }
-
+        stateHistory.clear();
         CubikState initialState = this->getCurrentState();
-        initialState.moveHistory.push_front('I');
-           
+        initialState.moveHistory.push_back('I');
         stateHistory.push_front(initialState);
+    }
+    
+    void applyMove(char move) {
+        switch(move) {
+            case 'U': moveU(); break;
+            case 'D': moveD(); break;
+            case 'L': moveL(); break;
+            case 'R': moveR(); break;
+            case 'F': moveF(); break;
+            case 'B': moveB(); break;
+        }
     }
 
     void shuffleCubik () {
         srand(time(0));
-        long long randNum = rand();
-
-        for (long long i = randNum; i > 0; i /=6) {
-            int mov = i%6;
-            switch (mov)
-            {
-            case 0: this->moveU(); break;
-            case 1: this->moveD(); break;
-            case 2: this->moveL(); break;
-            case 3: this->moveR(); break;
-            case 4: this->moveF(); break;
-            case 5: this->moveB(); break;
-            default: return;
+        int shuffle_moves = 1+ rand()%9; 
+        char moves[] = {'U', 'D', 'L', 'R', 'F', 'B'};
+        
+        reset();
+        cout << "Embaralhando o cubo com " << shuffle_moves << " movimentos..." << endl;
+        for (int i = 0; i < shuffle_moves; ++i) {
+            this->applyMove(moves[rand() % 6]);
+        }
+        stateHistory.clear(); 
+    }
+    
+    bool isSolved() const {
+        char u = up[0][0], d = down[0][0], l = left[0][0], r = right[0][0], f = front[0][0], b = back[0][0];
+        for (int i = 0; i < 2; ++i) {
+            for (int j = 0; j < 2; ++j) {
+                if (up[i][j] != u || down[i][j] != d || left[i][j] != l ||
+                    right[i][j] != r || front[i][j] != f || back[i][j] != b)
+                {
+                    return false;
+                }
             }
         }
+        return true;
     }
 
-    void checkState () {
-        bool solved = false;
-        set<char> checkUp;
-        set<char> checkDown;
-        set<char> checkLeft;
-        set<char> checkRight;
-        set<char> checkFront;
-        set<char> checkBack;
-
-        for (int i = 0; i < 2; ++i) {
-            if (solved) break;
-            for (int j = 0; j < 2; ++j) {
-
-                checkUp.insert(up[i][j]);
-                checkDown.insert(down[i][j]);
-                checkLeft.insert(left[i][j]);
-                checkRight.insert(right[i][j]);
-                checkFront.insert(front[i][j]);
-                checkBack.insert(back[i][j]);
-
-                if (
-                    checkUp.size() > 1 ||
-                    checkDown.size() > 1 || 
-                    checkLeft.size() > 1 ||
-                    checkRight.size() > 1 ||
-                    checkFront.size() > 1 ||
-                    checkBack.size() > 1
-                ) {
-                    solved = true;
-                    break;
-                }
-            }
-        }
-
-        if (!solved) {
+    void checkStateAndPrintSolution() {
+        if (isSolved()) {
             cout << "Solução encontrada!!!" << endl << endl;
-            cout << "Movimentos realizados: ";
-            if (!stateHistory.empty()) {
-                deque<char> tempHistory = stateHistory.back().moveHistory;
-                int moveCount = 0;
-
-                for (char c : tempHistory) {
-                    if (c != 'I') ++moveCount;
-                }
-                cout << moveCount << endl;
+            if (!stateHistory.empty() && stateHistory.back().moveHistory.front() != 'I') {
+                const auto& history = stateHistory.back().moveHistory;
+                cout << "Movimentos realizados: " << history.size() << endl;
                 cout << "Sequência de movimentos: ";
-                
-                for (char c : tempHistory) {
-                    if (c != 'I') cout << c << " ";
+                for (char c : history) {
+                    cout << c << " ";
                 }
                 cout << endl;
-                stateHistory.clear();
             } else {
-                cout << "0" << endl;
+                cout << "O cubo já está resolvido. 0 movimentos." << endl;
             }
         }
     }
 
-    
-    void performAndRecordMove(char m) { //Método centralizador que realiza os movimentos e armazena na lista
-
-        deque<char> previousHistory = stateHistory.back().moveHistory;
-
-        switch (m) {
-            case 'U': this->moveU(); break;
-            case 'D': this->moveD(); break;
-            case 'L': this->moveL(); break;
-            case 'R': this->moveR(); break;
-            case 'F': this->moveF(); break;
-            case 'B': this->moveB(); break;
-            default: return;
+    void performAndRecordMove(char m) {
+        vector<char> previousHistory;
+        if (!stateHistory.empty()) {
+            previousHistory = stateHistory.back().moveHistory;
+            if (previousHistory.front() == 'I') {
+                previousHistory.clear();
+            }
         }
+        
+        applyMove(m);
         
         CubikState newState = this->getCurrentState();
         newState.moveHistory = previousHistory;
@@ -289,126 +266,390 @@ public:
         stateHistory.push_back(newState);
     }
 
-    deque<CubikState> & getStateHistory()
-    { 
-        return stateHistory; 
-    }
-    
-
     CubikState getCurrentState() const {
         CubikState currentState;
         for(int i = 0; i < 2; i++) {
             for(int j = 0; j < 2; j++) {
-                currentState.up[i][j] = up[i][j];
-                currentState.down[i][j] = down[i][j];
-                currentState.left[i][j] = left[i][j];
+                currentState.up[i][j]    = up[i][j];
+                currentState.down[i][j]  = down[i][j];
+                currentState.left[i][j]  = left[i][j];
                 currentState.right[i][j] = right[i][j];
                 currentState.front[i][j] = front[i][j];
-                currentState.back[i][j] = back[i][j];
+                currentState.back[i][j]  = back[i][j];
             }
         }
         return currentState;
     }
-
-    // Impressão com bordas compartilhadas (junções) entre células
-    void printCubik() {
-/*
-        cout << "==========================================" << endl;
-
-        cout << "Historico de Movimentos:" << endl;
-
     
-    if (!stateHistory.empty()) {
-        deque<char> tempMoveHistory = stateHistory.back().moveHistory;
-
-        while (!tempMoveHistory.empty()) {
-            cout << tempMoveHistory.front() << " ";
-            tempMoveHistory.pop_front();
+    void setState(const CubikState& state) {
+         for(int i = 0; i < 2; i++) {
+            for(int j = 0; j < 2; j++) {
+                up[i][j]    = state.up[i][j];
+                down[i][j]  = state.down[i][j];
+                left[i][j]  = state.left[i][j];
+                right[i][j] = state.right[i][j];
+                front[i][j] = state.front[i][j];
+                back[i][j]  = state.back[i][j];
+            }
         }
-        cout << endl;
-    }else{
-        cout << "Nenhum movimento registrado." << endl;
-        return;
-    
     }
-*/    
+
+    void printCubik() {
         cout << "==========================================" << endl;
 
         cout << "\t" << " " << endl;
-        cout << "       " << inner(up[0][0]) << " " << inner(up[0][1]) << endl;
-        cout << "       " << endl;
-        cout << "       " << inner(up[1][0]) << " " << inner(up[1][1]) << endl;
-        cout << "       " << endl;
+        cout << "      " << inner(up[0][0]) << " " << inner(up[0][1]) << endl;
+        cout << "      " << " " << endl;
+        cout << "      " << inner(up[1][0]) << " " << inner(up[1][1]) << endl;
+        cout << "      " << " " << endl;
 
-        cout
-             << inner(left[0][0]) << " " <<  inner(left[0][1]) << "  "
+        cout << inner(left[0][0])  << " " << inner(left[0][1])  << "  "
              << inner(front[0][0]) << " " << inner(front[0][1]) << "  "
-             << inner(right[0][0]) << " " <<  inner(right[0][1]) << "  "
-             << inner(back[0][0]) << " " <<  inner(back[0][1]) << endl;
-        cout
-             << "  "
-             << endl;
-        cout
-             << inner(left[1][0]) << " " << inner(left[1][1]) << "  "
-             << inner(front[1][0]) << " " <<  inner(front[1][1]) << "  "
+             << inner(right[0][0]) << " " << inner(right[0][1]) << "  "
+             << inner(back[0][0])  << " " << inner(back[0][1])  << endl;
+        cout << " " << endl;
+        cout << inner(left[1][0])  << " " << inner(left[1][1])  << "  "
+             << inner(front[1][0]) << " " << inner(front[1][1]) << "  "
              << inner(right[1][0]) << " " << inner(right[1][1]) << "  "
-             << inner(back[1][0]) << " " <<  inner(back[1][1]) << endl;
+             << inner(back[1][0])  << " " << inner(back[1][1])  << endl;
 
         cout << "\t" << endl;
-        cout << "       " << inner(down[0][0]) << " " << inner(down[0][1]) << endl;
-        cout << "       " << " " << endl;
-        cout << "       " << inner(down[1][0]) << " " << inner(down[1][1]) << endl;
-        cout << "       " << " " << endl;
+        cout << "      " << inner(down[0][0]) << " " << inner(down[0][1]) << endl;
+        cout << "      " << " " << endl;
+        cout << "      " << inner(down[1][0]) << " " << inner(down[1][1]) << endl;
+        cout << "      " << " " << endl;
 
         cout << "==========================================" << endl;
         cout << "\t" << "MANUAL DE INSTRUÇÕES" << endl;
-        cout << "U -> Face superior" << "     |  ";
-        cout << "D -> Face inferior" << endl;
-        cout << "L -> Face esquerda" << "     |  ";
-        cout << "R -> Face direita" << endl;
-        cout << "F -> Face frontal" << "      |  ";
-        cout << "B -> Face traseira" << endl;
-        cout << "S -> Embaralhar o cubo" << " |  ";
-        cout << "Q -> Encerrar programa" << endl << endl;
+        cout << "U -> Face superior | D -> Face inferior" << endl;
+        cout << "L -> Face esquerda | R -> Face direita" << endl;
+        cout << "F -> Face frontal  | B -> Face traseira" << endl;
+        cout << "S -> Embaralhar    | Q -> Sair" << endl;
+        cout << "Z -> Resolver (DFS)| X -> Resolver (BFS)" << endl;
+        cout << "A -> Resolver (A*) | C -> Limpar" << endl; 
     }
 };
 
 
+
 class algorithms {
-    public:
-        vector<char> bfs(const CubikState &start);
-        vector<char> dfs(const CubikState &start, int godNumber = 14);
-        vector<char> aEstrela(const CubikState &start);
+public:
+    string stateToString(const CubikState& s) {
+        string res = "";
+        for(int i=0; i<2; ++i) for(int j=0; j<2; ++j) res += s.up[i][j];
+        for(int i=0; i<2; ++i) for(int j=0; j<2; ++j) res += s.down[i][j];
+        for(int i=0; i<2; ++i) for(int j=0; j<2; ++j) res += s.left[i][j];
+        for(int i=0; i<2; ++i) for(int j=0; j<2; ++j) res += s.right[i][j];
+        for(int i=0; i<2; ++i) for(int j=0; j<2; ++j) res += s.front[i][j];
+        for(int i=0; i<2; ++i) for(int j=0; j<2; ++j) res += s.back[i][j];
+        return res;
+    }
+
+    
+    bool isStateSolved(const CubikState& s) {
+        char u = s.up[0][0], d = s.down[0][0], l = s.left[0][0], r = s.right[0][0], f = s.front[0][0], b = s.back[0][0];
+        for (int i = 0; i < 2; ++i) {
+            for (int j = 0; j < 2; ++j) {
+                if (s.up[i][j] != u || s.down[i][j] != d || s.left[i][j] != l ||
+                    s.right[i][j] != r || s.front[i][j] != f || s.back[i][j] != b)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    vector<char> bfs(const CubikState &start) {
+        if (isStateSolved(start)) {
+            return {}; 
+        }
+
+        queue<CubikState> q;
+        q.push(start);
+
+        set<string> visited;
+        visited.insert(stateToString(start));
+        
+        char moves[] = {'U', 'D', 'L', 'R', 'F', 'B'};
+
+        while(!q.empty()) {
+            CubikState current = q.front();
+            q.pop();
+
+            for (char move : moves) {
+                magicCubik2x2x2 tempCube;
+                tempCube.setState(current);
+                tempCube.applyMove(move);
+
+                CubikState neighbor = tempCube.getCurrentState();
+                string neighborStr = stateToString(neighbor);
+                
+                if (visited.find(neighborStr) == visited.end()) {
+                    neighbor.moveHistory = current.moveHistory;
+                    neighbor.moveHistory.push_back(move);
+                    
+                    if (isStateSolved(neighbor)) {
+                        return neighbor.moveHistory;
+                    }
+
+                    visited.insert(neighborStr);
+                    q.push(neighbor);
+                }
+            }
+        }
+        return {}; 
+    }
+    vector<char> dfs(const CubikState& start, int max_depth) {
+        if (isStateSolved(start)) {
+            return {}; 
+        }
+        
+        stack<CubikState> s; // Usamos uma pilha explícita
+        s.push(start);
+
+        set<string> visited;
+        visited.insert(stateToString(start));
+        
+        char moves[] = {'U', 'D', 'L', 'R', 'F', 'B'};
+
+        while (!s.empty()) {
+            CubikState current = s.top();
+            s.pop();
+            if (isStateSolved(current)) {
+                return current.moveHistory;
+            }
+
+            
+            if (current.moveHistory.size() >= max_depth) {
+                continue;
+            }
+            
+            
+            for (char move : moves) {
+                magicCubik2x2x2 tempCube;
+                tempCube.setState(current);
+                tempCube.applyMove(move);
+                CubikState neighbor = tempCube.getCurrentState();
+                string neighborStr = stateToString(neighbor);
+                
+                if (visited.find(neighborStr) == visited.end()) {
+                    visited.insert(neighborStr);
+                    neighbor.moveHistory = current.moveHistory;
+                    neighbor.moveHistory.push_back(move);
+                    s.push(neighbor);
+                }
+            }
+        }
+
+        return {}; 
+    }
+    
+    vector<char> a_star(const CubikState& start) {
+        if (isStateSolved(start)) {
+            return {}; 
+        }
+
+        priority_queue<CubikState, vector<CubikState>, CompareState> open_list;
+
+
+        set<string> visited;
+
+        CubikState start_node = start;
+        start_node.g_cost = 0; 
+        start_node.h_cost = heuristic(start_node); 
+        start_node.moveHistory.clear(); 
+
+        open_list.push(start_node);
+
+        char moves[] = {'U', 'D', 'L', 'R', 'F', 'B'};
+
+        while (!open_list.empty()) {
+           
+            CubikState current = open_list.top();
+            open_list.pop();
+
+            string currentStr = stateToString(current);
+
+            if (visited.count(currentStr)) {
+                continue;
+            }
+            visited.insert(currentStr);
+
+            if (isStateSolved(current)) {
+                return current.moveHistory;
+            }
+
+            for (char move : moves) {
+                magicCubik2x2x2 tempCube;
+                tempCube.setState(current);
+                tempCube.applyMove(move);
+                CubikState neighbor = tempCube.getCurrentState();
+                
+                
+                if (visited.find(stateToString(neighbor)) == visited.end()) {
+                    neighbor.g_cost = current.g_cost + 1; 
+                    neighbor.h_cost = heuristic(neighbor); 
+                    neighbor.moveHistory = current.moveHistory;
+                    neighbor.moveHistory.push_back(move);
+                    
+                    open_list.push(neighbor); 
+                }
+            }
+        }
+
+        return {}; 
+    }
+
+private:
+    
+    int heuristic(const CubikState& s) const {
+        int misplaced_count = 0;
+
+        
+        const char target_colors[6] = {'W', 'Y', 'O', 'R', 'G', 'B'};
+        
+        
+        const char (*faces[6])[2][2] = {&s.up, &s.down, &s.left, &s.right, &s.front, &s.back};
+
+        for (int f = 0; f < 6; ++f) { 
+            map<char, int> color_counts;
+            for (int i = 0; i < 2; ++i) {
+                for (int j = 0; j < 2; ++j) {
+                    color_counts[(*faces[f])[i][j]]++;
+                }
+            }
+            
+            int max_same_color = 0;
+            if(!color_counts.empty()){
+                for(auto const& [key, val] : color_counts){
+                    if(val > max_same_color){
+                        max_same_color = val;
+                    }
+                }
+            }
+            misplaced_count += (4 - max_same_color);
+        }
+        
+        
+        return misplaced_count / 8;
+    }
+
+
+    
 };
 
 int main() {
     clearScreen();
     magicCubik2x2x2 cube;
+    algorithms solver;
 
     char m;
     while (true) {
-        cout << "\n\t MAGIC CUBIK " << endl;
+        cout << "\n\t MAGIC CUBIK 2x2x2" << endl;
         cube.printCubik();
         
         cout << "INSTRUÇÃO : ";
         cin >> m;
-        clearScreen();
         m = toupper(m);
 
         if(m =='U' || m =='D' || m == 'L' || m == 'R' || m == 'F' || m == 'B') {
+            clearScreen();
             cube.performAndRecordMove(m);
-            cube.checkState();
+            cube.checkStateAndPrintSolution();
 
-        } else if (m == 'Q' || m == 'q') {
+        } else if (m == 'Q') {
             break;
         }
         else if (m == 'S') {
+            clearScreen();
             cube.shuffleCubik();
-
-        } else {
+        }
+        else if (m == 'C') {
+            clearScreen();
+            cube.reset();
+        }
+         else if (m == 'Z') {
+             clearScreen();
+             const int max_depth = 20; 
+             cout << "Procurando a solução via DFS (limite de " << max_depth << " movimentos)..." << endl;
+             CubikState startState = cube.getCurrentState();
+             
+             vector<char> solution = solver.dfs(startState, max_depth);
+             
+             if (solution.empty()) {
+                 if (cube.isSolved()) {
+                     cout << "O cubo já está resolvido!" << endl;
+                 } else {
+                     cout << "Nenhuma solução encontrada com o limite de profundidade." << endl;
+                 }
+             } else {
+                 cout << "Solução encontrada em " << solution.size() << " movimentos!" << endl;
+                 cout << "Sequência: ";
+                 for(char move : solution) {
+                     cout << move << " ";
+                 }
+                 cout << endl << "Aplicando solução..." << endl;
+                 for(char move : solution) {
+                     cube.applyMove(move);
+                 }
+             }
+        }
+         else if (m == 'X') {
+             clearScreen();
+             cout << "Procurando a solução via BFS..." << endl;
+             CubikState startState = cube.getCurrentState();
+             
+             vector<char> solution = solver.bfs(startState);
+             
+             if (solution.empty()) {
+                 if (cube.isSolved()) {
+                     cout << "O cubo já está resolvido!" << endl;
+                 } else {
+                     cout << "Nenhuma solução encontrada." << endl;
+                 }
+             } else {
+                 cout << "Solução encontrada em " << solution.size() << " movimentos!" << endl;
+                 cout << "Sequência ótima: ";
+                 for(char move : solution) {
+                     cout << move << " ";
+                 }
+                 cout << endl << "Aplicando solução..." << endl;
+                 for(char move : solution) {
+                     cube.applyMove(move);
+                 }
+             }
+         }
+        
+        else if (m == 'A') {
+             clearScreen();
+             cout << "Procurando a solução via A*..." << endl;
+             CubikState startState = cube.getCurrentState();
+             
+             vector<char> solution = solver.a_star(startState);
+             
+             if (solution.empty()) {
+                 if (cube.isSolved()) {
+                     cout << "O cubo já está resolvido!" << endl;
+                 } else {
+                     cout << "Nenhuma solução encontrada." << endl;
+                 }
+             } else {
+                 cout << "Solução ótima encontrada em " << solution.size() << " movimentos!" << endl;
+                 cout << "Sequência: ";
+                 for(char move : solution) {
+                     cout << move << " ";
+                 }
+                 cout << endl << "Aplicando solução..." << endl;
+                 for(char move : solution) {
+                     cube.applyMove(move);
+                 }
+             }
+        }
+        else {
+            clearScreen();
             cout << "Movimento inválido. Tente novamente." << endl;
         }
     }
     return 0;
 }
-
